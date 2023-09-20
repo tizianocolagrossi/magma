@@ -1,0 +1,48 @@
+[submodule "AFLplusplus"]
+	path = AFLplusplus
+	url = https://github.com/AFLplusplus/AFLplusplus.git
+[submodule "test/libtests/openssl"]
+	path = test/libtests/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "test/libtests/harfbuzz"]
+	path = test/libtests/harfbuzz
+	url = https://github.com/harfbuzz/harfbuzz.git
+[submodule "test/libtests/libxml2"]
+	path = test/libtests/libxml2
+	url = https://gitlab.gnome.org/GNOME/libxml2.git
+[submodule "test/libtests/libpcap"]
+	path = test/libtests/libpcap
+	url = https://github.com/the-tcpdump-group/libpcap.git
+[submodule "test/libtests/ffmpeg"]
+	path = test/libtests/ffmpeg
+	url = https://git.ffmpeg.org/ffmpeg.git
+[submodule "test/libtests/h2o"]
+	path = test/libtests/h2o
+	url = https://github.com/h2o/h2o
+[submodule "test/libtests/libhevc"]
+	path = test/libtests/libhevc
+	url = https://github.com/ittiam-systems/libhevc.git
+[submodule "test/libtests/libtpms"]
+	path = test/libtests/libtpms
+	url = https://github.com/stefanberger/libtpms
+[submodule "test/libtests/exiv2"]
+	path = test/libtests/exiv2
+	url = https://github.com/Exiv2/exiv2.git
+[submodule "test/libtests/zlib"]
+	path = test/libtests/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "test/libtests/libpng"]
+	path = test/libtests/libpng
+	url = https://github.com/glennrp/libpng.git
+[submodule "test/libtests/re2"]
+	path = test/libtests/re2
+	url = https://github.com/google/re2
+[submodule "test/libtests/libarchive"]
+	path = test/libtests/libarchive
+	url = https://github.com/libarchive/libarchive.git
+[submodule "test/libxml2-for-static"]
+	path = test/libxml2-for-static
+	url = https://gitlab.gnome.org/GNOME/libxml2.git
+[submodule "test/libtests/php-src"]
+	path = test/libtests/php-src
+	url = https://github.com/php/php-src.git

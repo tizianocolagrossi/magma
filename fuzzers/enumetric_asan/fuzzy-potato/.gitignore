@@ -1,0 +1,48 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+build/
+datanotebooks/openssl/
+datanotebooks/irssi/
+datanotebooks/harfbuzz/
+datanotebooks/libxml2/
+
+datanotebooks/dumps/dump_out_harfbuzz/harfbuzz_draw_rt_dump_bypid/
+datanotebooks/dumps/dump_out_openssl/openssl_rt_dump_bypid/
+
+test/libtests/exiv2-0.26/
+test/libtests/ffmpeg-4.0.1/
+test/libtests/libtiff-Release-v3-9-7/
+test/libtests/tcpdump-4.8.1/
+test/libtests/
+test/unibench-master/
