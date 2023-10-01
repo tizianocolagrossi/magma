@@ -26,34 +26,16 @@
 class DbgValueInfo{
 private:
     bool is_a_copy = false;
-    unsigned line;
-    //unsigned col;
     DbgTypeInfo *typeInfo = nullptr;
-    llvm::StringRef name = "";
     llvm::Value* val = nullptr;
-    llvm::StringRef directory = "";
-    llvm::StringRef file = "";
-
-    void finalize(){
-        if(directory.startswith("./")){
-            directory = directory.substr(2);
-        }
-        if(file.startswith("./")){
-            file = file.substr(2);
-            
-        }
-    };
 
 public:
-    DbgValueInfo(llvm::CallBase *callBaseDeclare);
-    DbgValueInfo(llvm::GlobalVariable *GV);
+    DbgValueInfo(llvm::Value* value_declared, DIVariable* di_variable_declared);
+    DbgValueInfo(llvm::GlobalVariable *GV, DIGlobalVariable* di_variable_declared);
     DbgValueInfo(llvm::GetElementPtrInst *I, DbgTypeInfo tyinfo);
     ~DbgValueInfo(){if(typeInfo)delete typeInfo;}
 
     Value* get(){return val;}
-    llvm::StringRef getDir(){return directory;};
-    llvm::StringRef getFile(){return file;};
-    unsigned  getLine(){return line;};
     DbgTypeInfo* getTypeInfo(){return typeInfo;};
     llvm::dwarf::Tag getActualTTag(){
         if(!typeInfo)return dwarf::Tag::DW_TAG_null;
@@ -61,31 +43,19 @@ public:
     };
 
     DbgValueInfo(const DbgValueInfo &I){
-        line      = I.line;
-        name      = I.name;
         val       = I.val;
-        directory = I.directory;
-        file      = I.file;
         typeInfo  = new DbgTypeInfo(*I.typeInfo);
         is_a_copy = true;
     };
 
     friend bool operator== (DbgValueInfo &lhs, DbgValueInfo &rhs){
         bool eq = true;
-        eq &= lhs.name==rhs.name;
-        eq &= lhs.line==rhs.line;
-        eq &= lhs.directory==rhs.directory;
-        eq &= lhs.file==rhs.file;
         eq &= lhs.val==rhs.val;
 
         return eq;
     }
     friend bool operator== (const DbgValueInfo &lhs, const DbgValueInfo &rhs){
         bool eq = true;
-        eq &= lhs.name==rhs.name;
-        eq &= lhs.line==rhs.line;
-        eq &= lhs.directory==rhs.directory;
-        eq &= lhs.file==rhs.file;
         eq &= lhs.val==rhs.val;
 
         return eq;

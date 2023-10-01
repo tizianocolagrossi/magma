@@ -1,3 +1,3 @@
 add_subdirectory(pass)
-#add_subdirectory(runtime)
-#add_subdirectory(managershmem)
+add_subdirectory(runtime)
+add_subdirectory(managershmem)

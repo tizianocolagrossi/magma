@@ -103,7 +103,6 @@ public:
     
     // use murmurhash
     friend bool operator< (DbgTypeInfo &lhs, DbgTypeInfo &rhs){
-        bool eq = true;
         unsigned long lns = std::hash<std::string>{}(lhs.name.str());
         unsigned long rns = std::hash<std::string>{}(rhs.name.str());
         dwarf::Tag tlhs = lhs.type_trace.front()->getTag();
@@ -112,7 +111,6 @@ public:
     };
 
     friend bool operator< (const DbgTypeInfo &lhs, const DbgTypeInfo &rhs){
-        bool eq = true;
         unsigned long lns = std::hash<std::string>{}(lhs.name.str());
         unsigned long rns = std::hash<std::string>{}(rhs.name.str());
         dwarf::Tag tlhs = lhs.type_trace.front()->getTag();
@@ -121,7 +119,6 @@ public:
     };
 
     friend bool operator> (DbgTypeInfo &lhs, DbgTypeInfo &rhs){
-        bool eq = true;
         unsigned long lns = std::hash<std::string>{}(lhs.name.str());
         unsigned long rns = std::hash<std::string>{}(rhs.name.str());
         dwarf::Tag tlhs = lhs.type_trace.front()->getTag();
@@ -130,7 +127,6 @@ public:
     };
 
     friend bool operator> (const DbgTypeInfo &lhs, const DbgTypeInfo &rhs){
-        bool eq = true;
         unsigned long lns = std::hash<std::string>{}(lhs.name.str());
         unsigned long rns = std::hash<std::string>{}(rhs.name.str());
         dwarf::Tag tlhs = lhs.type_trace.front()->getTag();

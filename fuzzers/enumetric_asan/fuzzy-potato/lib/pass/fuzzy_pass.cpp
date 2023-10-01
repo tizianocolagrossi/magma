@@ -234,38 +234,49 @@ void FuzzyPass::analyzeCollectedListAndBuildValueMap(){
     // Create entry into the valueinfo_map for GlobalVariables 
     // resent in the mofule.
     for(GlobalVariable *GV : globals_declare){
-        try{
-            valueinfo_map[GV] = std::shared_ptr<DbgValueInfo>(new DbgValueInfo(GV));
-            D(DUMP_COST_VALUE_MAP,dbgs()<<ANS_BGB<<"find global"<<*GV<<ANS_RST<<"\n");
-            
-            // [TODO] this may be removed since was an idea to achive coverage 
-            // over the values of the globals in the module.
-#ifdef INSTR_GLOBALS
-            if(GV->isConstant())continue;
-            Type* ty = GV->getType();
-            if(!ty)continue;
-            Type* finalTy =  ty->getContainedType(ty->subtypes().size()-1);
-            if(!finalTy->isIntegerTy())continue;
-            // dbgs()<<"FOUND "<< *finalTy <<"\n";
-            if(valueinfo_map[GV]->getActualTTag() != dwarf::Tag::DW_TAG_enumeration_type ){
-                Origin new_origin = Origin( GV, OriginType::ORIG_GLOBAL, *(valueinfo_map[GV]->getTypeInfo()) );
-                origins.insert( new_origin );
-            }
-#endif
-        }catch(...){}
+        if(!GV){continue;}
+        SmallVector<DIGlobalVariableExpression *, 1> GVEs;
+        GV->getDebugInfo(GVEs);
+        
+        if(GVEs.size()==0) continue;
+        for (DIGlobalVariableExpression *GVE : GVEs){
+            if(!GVE)continue;
+
+            DIGlobalVariable* di_variable_declared = GVE->getVariable();
+
+            valueinfo_map[GV] = std::shared_ptr<DbgValueInfo>(new DbgValueInfo(GV, di_variable_declared));
+            break;
+        } 
+
+        D(DUMP_COST_VALUE_MAP,dbgs()<<ANS_BGB<<"find global"<<*GV<<ANS_RST<<"\n");
+
     }
     
     // Create entry into the valueinfo_map for local variables into the module 
     // the DbgDeclareInst is an intrinsic that will indicate a new declared
     // variables.
     for(DbgVariableIntrinsic* dbg_call: dbg_info_instrinsic){
+        if(!dbg_call) continue;
         if(!isa<DbgDeclareInst>(dbg_call))continue;
+        if(!dbg_call->getCalledFunction()) continue; // callbase not has a function
 
-        Value* variable_declared = dbg_call->getVariableLocationOp(0);
-        try{
-            valueinfo_map[variable_declared] = std::shared_ptr<DbgValueInfo>(new DbgValueInfo(dbg_call));
-            D(DUMP_COST_VALUE_MAP,dbgs()<<ANS_BGR<<"find local"<<*variable_declared<<ANS_RST<<"\n");
-        }catch (...){}
+        DbgVariableIntrinsic* call = dyn_cast<DbgVariableIntrinsic>(dbg_call);
+        if(!call){continue;}
+
+        StringRef name = call->getCalledFunction()->getName();
+        if(!name.endswith("declare")){continue;}
+
+        DIVariable* di_variable_declared = call->getVariable();
+        if(!di_variable_declared){continue;}
+
+        Value * value_declared = call->getVariableLocationOp(0);
+        if(!value_declared){continue;}
+
+        //cheks
+
+        valueinfo_map[value_declared] = std::shared_ptr<DbgValueInfo>(new DbgValueInfo(value_declared, di_variable_declared));
+        D(DUMP_COST_VALUE_MAP,dbgs()<<ANS_BGR<<"find local"<<*value_declared<<ANS_RST<<"\n");
+
     }
 
     // Create entry into the valueinfo_map for GEP references into the module 
@@ -303,10 +314,10 @@ void FuzzyPass::analyzeCollectedListAndBuildValueMap(){
         auto it = pointer_set.begin();
         std::advance(it, index);
         const DbgTypeInfo* x = &*it;
-        try{
-            valueinfo_map[GEP] = std::shared_ptr<DbgValueInfo>(new DbgValueInfo(GEP, *x));
-            D(DUMP_COST_VALUE_MAP,dbgs()<<ANS_BGY<<"find GEP"<<*GEP<<ANS_RST<<"\n");
-        }catch(...){continue;}
+        
+        valueinfo_map[GEP] = std::shared_ptr<DbgValueInfo>(new DbgValueInfo(GEP, *x));
+        D(DUMP_COST_VALUE_MAP,dbgs()<<ANS_BGY<<"find GEP"<<*GEP<<ANS_RST<<"\n");
+
     }
 }
 
