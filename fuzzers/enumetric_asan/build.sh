@@ -23,11 +23,12 @@ make -C utils/aflpp_driver || exit 1
 mkdir -p "$OUT/afl" "$OUT/cmplog"
 
 echo "BUILDING ENUMETRIC ---------------------------------------------------------------------------"
-cd "$FUZZER/fuzzy-potato"
-export CC=clang-13
-export CXX=clang++-13
-export LLVM_CONFIG=llvm-config-13
-mkdir -p build
-cd build
-cmake .. && make -j
-cp ./lib/pass/libfuzzy-pass.so "$FUZZER/repo/"
+
+
+cd "$FUZZER/fuzzy-potato/lib/pass/"
+
+clang++-13 -g -Wall -fPIC -shared dbg_type_info.cpp dbg_value_info.cpp dump_instrumenter.cpp \
+    fuzzy_pass.cpp instnamer_module.cpp main.cpp -o libfuzzy-pass.so $(llvm-config-13 --cxxflags -ldflags --libs) \
+    -std=c++17 -I "$FUZZER/fuzzy-potato/include/"
+
+cp ./libfuzzy-pass.so "$FUZZER/repo/"

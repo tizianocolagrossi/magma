@@ -46,30 +46,13 @@ USER_ID=$(id -u $USER)
 test "$GROUP_ID" = "0" && GROUP_ID=1000
 test "$USER_ID" = "0" && USER_ID=1000
 set -x
-
-DIRNAME=$(dirname $IMG_NAME)
-case $DIRNAME in
-    "magma/enumetric_asan")
-    echo "Ubuntu 22.04"
-    docker build -t "$IMG_NAME" \
-        --build-arg fuzzer_name="$FUZZER" \
-        --build-arg target_name="$TARGET" \
-        --build-arg USER_ID=$(id -u $USER) \
-        --build-arg GROUP_ID=$(id -g $USER) \
-        $mode_flag $isan_flag $harden_flag \
-        -f "$MAGMA/docker/DockerfileEnumetric" "$MAGMA"
-    ;;
-    *)
-    echo "Ubuntu 18.04"
-    docker build -t "$IMG_NAME" \
-        --build-arg fuzzer_name="$FUZZER" \
-        --build-arg target_name="$TARGET" \
-        --build-arg USER_ID=$(id -u $USER) \
-        --build-arg GROUP_ID=$(id -g $USER) \
-        $mode_flag $isan_flag $harden_flag \
-        -f "$MAGMA/docker/Dockerfile" "$MAGMA"
-    ;;
-esac
+docker build -t "$IMG_NAME" \
+    --build-arg fuzzer_name="$FUZZER" \
+    --build-arg target_name="$TARGET" \
+    --build-arg USER_ID=$(id -u $USER) \
+    --build-arg GROUP_ID=$(id -g $USER) \
+    $mode_flag $isan_flag $harden_flag \
+    -f "$MAGMA/docker/Dockerfile" "$MAGMA"
 set +x
 
 echo "$IMG_NAME"
