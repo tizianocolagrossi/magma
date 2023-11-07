@@ -302,15 +302,15 @@ def bug_survival_data(bd):
             metrics = set(['reached', 'triggered'])
             group_metrics = set(group['Metric'].unique())
             for metric in metrics.difference(group_metrics):
-                new_row = pd.Series({
+                new_row = pd.DataFrame({
                     'Fuzzer': fuzzer,
                     'Target': target,
                     'Program': program,
                     'Campaign': 0,
                     'Metric': metric,
                     'BugID': bug
-                })
-                group = group.append(new_row, ignore_index=True)
+                }, index=[metric])
+                group = pd.concat([group, new_row], ignore_index=True)
             return group
 
         name = group.name
@@ -319,28 +319,30 @@ def bug_survival_data(bd):
         for fuzzer in fuzzers:
             if fuzzer in fuzzers_in_group:
                 continue
-            new_rows = [
-                pd.Series({
-                    'Fuzzer': fuzzer,
-                    'Metric': 'reached'
-                }),
-                pd.Series({
-                    'Fuzzer': fuzzer,
-                    'Metric': 'triggered'
-                }),
-            ]
-            group = group.append(new_rows, ignore_index=True)
+            new_row = pd.DataFrame({'Fuzzer':fuzzer, 'Metric':'reached'}, index=['Metric'])
+            group = pd.concat([group, new_row], ignore_index=True)
+            new_row = pd.DataFrame({'Fuzzer':fuzzer, 'Metric':'triggered'}, index=['Metric'])
+            group = pd.concat([group, new_row], ignore_index=True)
 
         group = group.groupby('Fuzzer').apply(fillmissing, name).reset_index(drop=True)
 
         subgroups = group.groupby(['Fuzzer','Metric']).apply(fit_kmf_one, name, N)
         return subgroups
+        
 
     df = bd.frame
     N = df.reset_index().groupby(['Fuzzer', 'Target', 'Program'])['Campaign'].nunique()
+    # print('>>')
+    # print(N)
+    # print('<<')
+    
     kmf = df.reset_index() \
             .groupby(['Target', 'Program', 'BugID']) \
             .apply(fit_kmf_all, N)
+    
+    # print('>>')
+    # print(kmf)
+    # print('<<')      
 
     # get the mean survival time for every (target, program, bug, fuzzer, metric) tuple
     means = kmf.applymap(lambda k: restricted_mean_survival_time(k, bd.duration))
@@ -350,5 +352,9 @@ def bug_survival_data(bd):
     means = means.loc[means.groupby(['Target', 'BugID', 'Fuzzer'])[Metric.TRIGGERED.value].idxmin()]
     # re-arrange dataframe so that index is (target, bug) and columns are (fuzzer, metric)
     means = means.droplevel('Program').stack().unstack(-2).unstack()
+    
+    # print('>>')
+    # print(means)
+    # print('<<')  
 
     return kmf, means

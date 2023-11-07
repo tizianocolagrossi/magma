@@ -57,13 +57,17 @@ def generate_report(bd, outdir, report_title="Report", **kwargs):
     ensure_dir(os.path.join(outdir, 'targets'))
 
     boxplots = MatplotlibPlotter.bug_metric_boxplot(bd, outdir)
+    # print(boxplots)
+    
     uniq_bugs, sigmatrix = MatplotlibPlotter.unique_bugs_per_target(bd, outdir, Metric.TRIGGERED.value)
+    # print(uniq_bugs)
+    
     ett = MatplotlibPlotter.expected_time_to_trigger(bd, outdir)
     survplots, survlegend, survtable, hiliter_css, heatmap_css = MatplotlibPlotter.bug_survival_plots(bd, outdir)
     ppool = locals()
 
     env = jinja2.Environment(loader=jinja2.ChoiceLoader(
-                                        [jinja2.FileSystemLoader('templates'),
+                                        [jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')),
                                          jinja2.FileSystemLoader(outdir)])
                             )
     base_template = env.get_template('base.md')

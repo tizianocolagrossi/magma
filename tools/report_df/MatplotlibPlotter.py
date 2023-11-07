@@ -174,9 +174,9 @@ def bug_metric_boxplot(bd, outdir):
         return name
 
     df = bd.frame
+    # print(df.groupby(['Fuzzer', 'Target', 'Program', 'Metric']).apply(lambda k: print("\n===\nentry\n\n",k)))
     outfiles = df.groupby(['Fuzzer', 'Target', 'Program', 'Metric']) \
                  .apply(plot_boxes)
-
     return outfiles
 
 def line_plot_unqiue_bugs(bd, outdir, fuzzers, target, metric) :
@@ -292,6 +292,9 @@ def bug_survival_plots(bd, outdir):
 
     # adjust dataframe for better presentation
     means = means.droplevel('Target')
+    # print('>>')
+    # print(means)
+    # print('<<')
 
     agg = means.stack(0).groupby('BugID') \
                         .apply(lambda x: pd.Series(
@@ -300,9 +303,27 @@ def bug_survival_plots(bd, outdir):
                                 Metric.TRIGGERED.value: x[Metric.TRIGGERED.value].mean()
                             }
                         ))
-    agg.columns = pd.MultiIndex.from_product([['Aggregate'], [Metric.REACHED.value, Metric.TRIGGERED.value]])
+    agg.columns = pd.MultiIndex.from_product([['Aggregate'], [Metric.REACHED.value, Metric.TRIGGERED.value]],names=['Fuzzer', 'Metric'])
+
+    # print(means.axes)
+    # print(agg.axes)
+    # print('>>')
+    # # print(means.values[:1])
+    # print(means.head(1))
+    # print('<<')
+    
+    # print('>>')
+    # # print(agg.values[:1])
+    # print(agg.head(1))
+    # print('<<')
+    
     means = means.join(agg)
 
+    # print('>>')
+    # # print(means.values[:1])
+    # print(means.head(1))
+    # print('<<')
+    
     means = means.stack() \
                  .sort_values(
                     by='Fuzzer',
@@ -310,6 +331,10 @@ def bug_survival_plots(bd, outdir):
                     axis='columns',
                     key=lambda idx: [means[(f, Metric.TRIGGERED.value)][means[(f, Metric.TRIGGERED.value)] < bd.duration].count() for f in idx]) \
                  .unstack()
+    # print('>>')
+    # print(means)
+    # print('<<')    
+    
     means.sort_values(by=('Aggregate', Metric.TRIGGERED.value), inplace=True)
 
     means.drop(columns='Aggregate', level=0, inplace=True)
@@ -390,17 +415,17 @@ def bug_survival_plots(bd, outdir):
     hiliter.template = style_tpl
     heatmap.template = style_tpl
 
-    table_html = re.sub(r'colspan=(\d+)', r'colspan="\1"', styler.render())
+    table_html = re.sub(r'colspan=(\d+)', r'colspan="\1"', styler.to_html())
     table_name, path = output(outdir, 'data', 'mean_survival.html')
     with open(path, 'w') as f:
         f.write(table_html)
 
-    hiliter_css = '\n'.join(hiliter.render().split('\n')[1:-1]) + '}'
+    hiliter_css = '\n'.join(hiliter.to_html().split('\n')[1:-1]) + '}'
     hiliter_name, path = output(outdir, 'css', 'survival_hiliter.css')
     with open(path, 'w') as f:
         f.write(hiliter_css)
 
-    heatmap_css = '\n'.join(heatmap.render().split('\n')[1:-1]) + '}'
+    heatmap_css = '\n'.join(heatmap.to_html().split('\n')[1:-1]) + '}'
     heatmap_name, path = output(outdir, 'css', 'survival_heatmap.css')
     with open(path, 'w') as f:
         f.write(heatmap_css)

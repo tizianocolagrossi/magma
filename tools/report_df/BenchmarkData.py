@@ -3,7 +3,7 @@ from pandas import DataFrame
 import numpy as np
 import sys
 import json
-from collections import Mapping, Iterable
+from collections.abc import Mapping, Iterable
 
 INDEX_NAMES = ['Fuzzer', 'Target','Program','Campaign','Metric','BugID']
 
@@ -54,7 +54,7 @@ class BenchmarkData:
 
         # include any custom configuration into the json object
         update_dict(json_data, kwargs)
-
+        
         # load experiment results
         df = DataFrame.from_dict(flatten_dict(json_data['results']))
         df = df.transpose()
@@ -75,11 +75,11 @@ class BenchmarkData:
 
     @property
     def duration(self):
-        return self._config.get('duration', 24 * 60 * 60)
+        return self._config.get('duration', 2 * 24 * 60 * 60)
 
     @property
     def trials(self):
-        return self._config.get('trials', 10)
+        return self._config.get('trials', 5)
 
     @property
     def version(self):
