@@ -68,3 +68,6 @@ if [ -t 1 ]; then
         $flag_aff $flag_ep "$IMG_NAME" "$ANALISYS"
 fi
 
+##
+# FUZZER=enumetric_asan TARGET=libtiff PROGRAM=tiff_read_rgba_fuzzer ANALISYS=crash_id INPUT_DIR=./testInput/findings/default/crashes/ OUTPUT_DIR=./testOuput/ ./tools/captain/start_analisys.sh
+##

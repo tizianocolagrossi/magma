@@ -24,13 +24,14 @@ find_triggered()
     done
 }
 
+echo "Crash_to_magmaid REQUESTED" > /output/crash_to_magmaid_out.txt
 
 # associate crash with bug_id
-for crash in /input/*; do
-    
+for crash_path in /input/*; do
+    crash=$(echo "$crash_path" | sed s,^[/][^/]*[/],,) # remove /input/ from path
 
     cd "/tmp/"
-    cp --force "$crash" "/tmp/runonce.tmp"
+    cp --force "$crash_path" "/tmp/runonce.tmp"
     output=$($OUT/monitor --fetch watch --dump human "$FUZZER/runonce.sh" "/tmp/runonce.tmp" || true)
     if [ "$output" = "" ]; then
         echo "continue"
@@ -40,8 +41,11 @@ for crash in /input/*; do
 
     msg="$bug@$crash"
     echo "$msg"
+    echo "$msg" >> /output/crash_to_magmaid_out.txt
     rm "/tmp/runonce.tmp"
 done
+echo "ANALISYS END"
+echo "ANALISYS END" >> /output/crash_to_magmaid_out.txt
 
 
 
