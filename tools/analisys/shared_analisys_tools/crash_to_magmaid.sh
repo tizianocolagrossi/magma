@@ -2,10 +2,13 @@
 
 ##
 # Pre-requirements:
-# - NONE
+# - FUZZER
+# - PROGRAM
+# - TARGET
+# - IRUN
 ##
 
-echo "test of custom entrypoint"
+env
 
 find_triggered()
 {
@@ -24,7 +27,10 @@ find_triggered()
     done
 }
 
-echo "Crash_to_magmaid REQUESTED" > /output/crash_to_magmaid_out.txt
+LIBRARY=$(echo "$TARGET" | sed "s,^[/][^\n]*[/],,")
+FUZZERNAME=$(echo "$FUZZER" | sed "s,^[/][^\n]*[/],,")
+
+echo "Crash_to_magmaid REQUESTED" > "/output/$FUZZERNAME,$LIBRARY,$PROGRAM,$IRUN"
 
 # associate crash with bug_id
 for crash_path in /input/*; do
@@ -41,11 +47,10 @@ for crash_path in /input/*; do
 
     msg="$bug@$crash"
     echo "$msg"
-    echo "$msg" >> /output/crash_to_magmaid_out.txt
+    echo "$msg" >> "/output/$FUZZERNAME,$LIBRARY,$PROGRAM,$IRUN"
     rm "/tmp/runonce.tmp"
 done
-echo "ANALISYS END"
-echo "ANALISYS END" >> /output/crash_to_magmaid_out.txt
+
 
 
 
