@@ -8,8 +8,6 @@
 # - IRUN
 ##
 
-env
-
 find_triggered()
 {
     ##

@@ -25,6 +25,7 @@ cleanup() {
 
 trap cleanup EXIT SIGINT SIGTERM
 
+
 if [ -z $FUZZER ] || [ -z $TARGET ] || [ -z $PROGRAM ]; then
     echo '$FUZZER, $TARGET, and $PROGRAM must be specified as' \
          'environment variables.'
@@ -43,31 +44,29 @@ if [ ! -z $AFFINITY ]; then
 fi
 
 
-#### Here interesting for test purpose. (run different test routine each time)
+# #### Here interesting for test purpose. (run different test routine each time)
 flag_ep='--entrypoint=/magma_analisys/select.sh'
-echo "$flag_ep"
+# # echo "$flag_ep"
 
-#### Here interesting for test purpose. (map different test routine each time)
+# #### Here interesting for test purpose. (map different test routine each time)
 ANALISYS_DIR="$(realpath "$0")"
 ANALISYS_DIR="$(dirname "$ANALISYS_DIR")"
 ANALISYS_DIR="$ANALISYS_DIR/shared_analisys_tools/"
 
-echo "$ANALISYS_DIR"
+# # echo "$ANALISYS_DIR"
 
 flag_volume_analisys="--volume=$ANALISYS_DIR:/magma_analisys"
 
 flag_volume_input="--volume=$INPUT_DIR:/input/"
 flag_volume_output="--volume=$OUTPUT_DIR:/output/"
 
-
-if [ -t 1 ]; then
 docker run -it --rm $flag_volume_analisys $flag_volume_input $flag_volume_output \
     --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
     --env=PROGRAM="$PROGRAM" --env=ARGS="$ARGS" \
     --env=FUZZARGS="$FUZZARGS" --env=POLL="$POLL" --env=TIMEOUT="$TIMEOUT" \
     --env=IRUN="$IRUN" \
     $flag_aff $flag_ep "$IMG_NAME" "$ANALISYS"
-fi
+
 
 ##
 # FUZZER=enumetric_asan TARGET=libtiff PROGRAM=tiff_read_rgba_fuzzer ANALISYS=crash_id INPUT_DIR=./testInput/findings/default/crashes/ OUTPUT_DIR=./testOuput/ ./tools/captain/start_analisys.sh
