@@ -61,11 +61,12 @@ flag_volume_output="--volume=$OUTPUT_DIR:/output/"
 
 
 if [ -t 1 ]; then
-    docker run -it --rm $flag_volume_analisys $flag_volume_input $flag_volume_output \
-        --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
-        --env=PROGRAM="$PROGRAM" --env=ARGS="$ARGS" \
-        --env=FUZZARGS="$FUZZARGS" --env=POLL="$POLL" --env=TIMEOUT="$TIMEOUT" \
-        $flag_aff $flag_ep "$IMG_NAME" "$ANALISYS"
+docker run -it --rm $flag_volume_analisys $flag_volume_input $flag_volume_output \
+    --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+    --env=PROGRAM="$PROGRAM" --env=ARGS="$ARGS" \
+    --env=FUZZARGS="$FUZZARGS" --env=POLL="$POLL" --env=TIMEOUT="$TIMEOUT" \
+    --env=IRUN="$IRUN" \
+    $flag_aff $flag_ep "$IMG_NAME" "$ANALISYS"
 fi
 
 ##
