@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 from collections import defaultdict
+import subprocess
 from pathlib import Path
 from rich import print
 import argparse
@@ -17,7 +18,13 @@ global TMP_DIR
 TMP_DIR = tempfile.mkdtemp()
 
 MAGMA_FUZZERS_RUN_PREFIX = 'ar'
+MAGMA_FINDINGS           = 'findings'
+AFL_DEFAULT              = 'default'
+AFL_CRASHES              = 'crashes'
 RUN_DATA_COMPRESSED_NAME = 'ball.tar'
+
+CRASHID_ANALISYS         = 'crash_id'
+
 
 BUGPREFIX_LIBRARY = {
     'PNG': 'libpng', 
@@ -287,28 +294,49 @@ def untar(pathTarFile, outputDir):
         print("all file extracted")
     return
 
+def getCrashPaths(tarfile_path):
+    tar = tarfile.open(tarfile_path, 'r')
+    crashes = [x for x in tar.getmembers() if 'crashes' in x.name]
+    return crashes
 
+def hasCrash(tarfile_path):
+    return True if len(getCrashPaths(tarfile_path)) > 1 else False
 
 def analyzeRun(fuzzer, library, sut):
+    
+    if not (fuzzer == 'enumetric_asan' and library == 'libtiff' and sut == 'tiff_read_rgba_fuzzer'):
+        return
+    
     global TMP_DIR
     for irun in os.listdir(os.path.join(WORKDIR,MAGMA_FUZZERS_RUN_PREFIX, fuzzer, library, sut)):
         
-        tar = tarfile.open(os.path.join(WORKDIR,MAGMA_FUZZERS_RUN_PREFIX, fuzzer, library, sut, irun, RUN_DATA_COMPRESSED_NAME),'r')
-        print('analizyng ',fuzzer, library, sut, irun)
+        tar_path = os.path.join(WORKDIR,MAGMA_FUZZERS_RUN_PREFIX, fuzzer, library, sut, irun, RUN_DATA_COMPRESSED_NAME)
         
-        qt = QueueGraph()
-        for member in tar.getmembers():
-            if 'findings/default/queue'   not in member.name and \
-            'findings/default/crashes' not in member.name:
-                continue
-            print(irun, member)
-            if ID not in member.name:
-                continue
+        if not hasCrash(tar_path):
+            print('no crash in ',tar_path)
+            continue
+  
+        print('crash in ',tar_path)
+        
+        
+        print('analizyng ',fuzzer, library, sut, irun)
+        tar = tarfile.open(tar_path, 'r')
+        crashToMagmaId(tar_path)
+    
+    
+        # qt = QueueGraph()
+        # for member in tar.getmembers():
+        #     if 'findings/default/queue'   not in member.name and \
+        #     'findings/default/crashes' not in member.name:
+        #         continue
+        #     print(irun, member)
+        #     if ID not in member.name:
+        #         continue
             
-            if "queue" in member.name:
-                qt.addQueueElement(member.name)
-            if "crashes" in member.name:
-                qt.addCrash(member.name)
+        #     if "queue" in member.name:
+        #         qt.addQueueElement(member.name)
+        #     if "crashes" in member.name:
+        #         qt.addCrash(member.name)
             
         #     metadata = parseAFLNaming(member.name)
         #     if ID not in metadata:
@@ -316,6 +344,50 @@ def analyzeRun(fuzzer, library, sut):
         #     print(metadata)
     
     return
+
+def crashToMagmaId(tarfile_path):   
+    output_path = os.path.join(TMP_DIR, 'magmaIdResult')
+    os.mkdir(output_path) 
+    
+    
+    path_component = tarfile_path.split('/')
+    fuzzer  = path_component[-5]
+    library = path_component[-4]
+    sut     = path_component[-3]
+    irun    = path_component[-2]
+    # print(path_component)
+    print(fuzzer, library, sut, irun)
+    
+    global TMP_DIR
+    
+    tar = tarfile.open(tarfile_path, 'r')
+    for member in tar.getmembers():
+            if 'crashes' not in member.name:
+                continue            
+            tar.extract(member, path=TMP_DIR)
+    
+    extracted_crash_path = os.path.join(TMP_DIR, MAGMA_FINDINGS, AFL_DEFAULT, AFL_CRASHES)
+    
+
+    dir_file_path = os.path.dirname(os.path.realpath(__file__))
+    start_analisys_path = os.path.join(dir_file_path,'start_analisys.sh')
+    print(start_analisys_path)
+    env = os.environ
+    
+    print(fuzzer,library,sut)
+    
+    env["FUZZER"]     = fuzzer
+    env["TARGET"]     = library
+    env["PROGRAM"]    = sut
+    env["ANALISYS"]   = CRASHID_ANALISYS
+    env["INPUT_DIR"]  = extracted_crash_path+'/'
+    env["OUTPUT_DIR"] = output_path+'/'
+    env["IRUN"]       = irun
+    p = subprocess.Popen( [start_analisys_path],env=env, stdout=subprocess.PIPE )
+    out, err = p.communicate()
+    print(out.decode(), err)
+    p.wait()
+    return 
 
 def main():
     opt = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
