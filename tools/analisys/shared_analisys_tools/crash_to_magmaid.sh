@@ -28,7 +28,7 @@ find_triggered()
 LIBRARY=$(echo "$TARGET" | sed "s,^[/][^\n]*[/],,")
 FUZZERNAME=$(echo "$FUZZER" | sed "s,^[/][^\n]*[/],,")
 
-echo "Crash_to_magmaid REQUESTED" > "/output/$FUZZERNAME,$LIBRARY,$PROGRAM,$IRUN"
+echo "Crash_to_magmaid REQUESTED" > "/output/fuzzer:$FUZZERNAME,target:$LIBRARY,program:$PROGRAM,irun:$IRUN"
 
 # associate crash with bug_id
 for crash_path in /input/*; do
@@ -45,7 +45,7 @@ for crash_path in /input/*; do
 
     msg="$bug@$crash"
     echo "$msg"
-    echo "$msg" >> "/output/$FUZZERNAME,$LIBRARY,$PROGRAM,$IRUN"
+    echo "$msg" >> "/output/fuzzer:$FUZZERNAME,target:$LIBRARY,program:$PROGRAM,irun:$IRUN"
     rm "/tmp/runonce.tmp"
 done
 
