@@ -7,6 +7,7 @@ from rich import print
 import argparse
 import tempfile
 import tarfile
+import shutil
 import os
 ###
 # Global Variables
@@ -308,6 +309,10 @@ def analyzeRun(fuzzer, library, sut):
         return
     
     global TMP_DIR
+    
+    output_path = os.path.join(TMP_DIR, 'magma_id_result')
+    os.mkdir(output_path)
+    
     for irun in os.listdir(os.path.join(WORKDIR,MAGMA_FUZZERS_RUN_PREFIX, fuzzer, library, sut)):
         
         tar_path = os.path.join(WORKDIR,MAGMA_FUZZERS_RUN_PREFIX, fuzzer, library, sut, irun, RUN_DATA_COMPRESSED_NAME)
@@ -321,7 +326,8 @@ def analyzeRun(fuzzer, library, sut):
         
         print('analizyng ',fuzzer, library, sut, irun)
         tar = tarfile.open(tar_path, 'r')
-        crashToMagmaId(tar_path)
+        
+        crashToMagmaId(tar_path, output_path)
     
     
         # qt = QueueGraph()
@@ -345,10 +351,8 @@ def analyzeRun(fuzzer, library, sut):
     
     return
 
-def crashToMagmaId(tarfile_path):   
-    output_path = os.path.join(TMP_DIR, 'magmaIdResult')
-    os.mkdir(output_path) 
-    
+def crashToMagmaId(tarfile_path, output_path):   
+    global TMP_DIR
     
     path_component = tarfile_path.split('/')
     fuzzer  = path_component[-5]
@@ -357,8 +361,6 @@ def crashToMagmaId(tarfile_path):
     irun    = path_component[-2]
     # print(path_component)
     print(fuzzer, library, sut, irun)
-    
-    global TMP_DIR
     
     tar = tarfile.open(tarfile_path, 'r')
     for member in tar.getmembers():
@@ -387,6 +389,9 @@ def crashToMagmaId(tarfile_path):
     out, err = p.communicate()
     print(out.decode(), err)
     p.wait()
+    
+    shutil.rmtree(extracted_crash_path)
+    
     return 
 
 def main():
