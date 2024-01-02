@@ -58,8 +58,13 @@ ANALISYS_DIR="$ANALISYS_DIR/shared_analisys_tools/"
 
 flag_volume_analisys="--volume=$ANALISYS_DIR:/magma_analisys"
 
-flag_volume_input="--volume=$INPUT_DIR:/input/"
-flag_volume_output="--volume=$OUTPUT_DIR:/output/"
+if [[ ! -z $INPUT_DIR ]]; then
+    flag_volume_input="--volume=$INPUT_DIR:/input/"
+fi
+
+if [[ ! -z $OUTPUT_DIR ]]; then
+    flag_volume_output="--volume=$OUTPUT_DIR:/output/"
+fi
 
 docker run -it --rm $flag_volume_analisys $flag_volume_input $flag_volume_output \
     --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
