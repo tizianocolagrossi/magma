@@ -7,7 +7,7 @@ set -e
 ##
 
 git clone --no-checkout https://github.com/tizianocolagrossi/EnumerationFinder.git "$FUZZER/finder"
-git -C "$FUZZER/finder" checkout 4603815d00c801ecdef2a429e68cb403b257d48d
+git -C "$FUZZER/finder" checkout c1599c330160bb3a62dd9340cadf440ef0914e1a
 ## Cloning Enumeration finder at add output commit
 ## https://github.com/tizianocolagrossi/EnumerationFinder/commit/4603815d00c801ecdef2a429e68cb403b257d48d
 
