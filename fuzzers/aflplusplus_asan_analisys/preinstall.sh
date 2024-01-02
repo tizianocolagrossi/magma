@@ -6,7 +6,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y && apt-get upgrade -y && \
     apt-get install -y make build-essential git wget gcc-7-plugin-dev gnupg lsb-release software-properties-common gdb
 
-bash -c "$(wget https://gef.blah.cat/sh -O -)"
+# bash -c "$(wget https://gef.blah.cat/sh -O -)"
 
 # Anything below llvm 13 is disabling good afl++ instrumentation features
 # and would make a comparison of afl++ to other fuzzers pointless.

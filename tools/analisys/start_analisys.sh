@@ -37,7 +37,8 @@ MAGMA=${MAGMA:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" >/dev/null 2>&1 \
 export MAGMA
 source "$MAGMA/tools/captain/common.sh"
 
-IMG_NAME="magma/$FUZZER/$TARGET"
+IMG_NAME="magma/$FUZZER/$TARGET/analisys"
+# IMG_NAME="magma/$FUZZER/$TARGET/analisys"
 
 if [ ! -z $AFFINITY ]; then
     flag_aff="--cpuset-cpus=$AFFINITY --env=AFFINITY=$AFFINITY"
@@ -64,7 +65,7 @@ docker run -it --rm $flag_volume_analisys $flag_volume_input $flag_volume_output
     --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
     --env=PROGRAM="$PROGRAM" --env=ARGS="$ARGS" \
     --env=FUZZARGS="$FUZZARGS" --env=POLL="$POLL" --env=TIMEOUT="$TIMEOUT" \
-    --env=IRUN="$IRUN" \
+    --env=IRUN="$IRUN" --env=ANALISYSDBG="1" \
     $flag_aff $flag_ep "$IMG_NAME" "$ANALISYS"
 
 
