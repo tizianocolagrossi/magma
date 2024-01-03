@@ -3,14 +3,15 @@
 
 find /magma/ -name '*.dump' -size 0 -print -delete;
 
-OutFile="/tmp/EnumerationFoundTotal.dump"
+LIBRARY="$(basename $TARGET)"
+
+OutFile="/tmp/"$LIBRARY"EnumerationFoundTotal.dump"
 touch "$OutFile"
 
 shopt -s globstar
 for possibleDump in /magma/**/*.dump; do # Whitespace-safe and recursive
     # echo "$possibleDump"
     ls -lh $possibleDump
-    echo "------------" >> $OutFile
     cat $possibleDump >> $OutFile
 done
 
